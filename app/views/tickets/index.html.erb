@@ -1,0 +1,49 @@
+<% content_for :title, "Talep kuyruğu" %>
+
+<div class="page-head">
+  <div>
+    <h1>Talep kuyruğu</h1>
+    <p class="subtle">Gelen destek taleplerini SLA süresine göre takip edin.</p>
+  </div>
+  <%= link_to "Müşteri talep formu", new_support_request_path, class: "btn btn--ghost btn--sm" %>
+</div>
+
+<div class="filters">
+  <%= link_to "Tümü (#{@counts.values.sum})", tickets_path,
+        class: ("is-active" if @status.blank?) %>
+  <% Ticket::STATUSES.each do |s| %>
+    <%= link_to "#{status_label(s)} (#{@counts.fetch(s, 0)})", tickets_path(status: s),
+          class: ("is-active" if @status == s) %>
+  <% end %>
+</div>
+
+<% if @tickets.any? %>
+  <table class="queue">
+    <thead>
+      <tr>
+        <th>Ref</th>
+        <th>Konu</th>
+        <th>Talep eden</th>
+        <th>Öncelik</th>
+        <th>Durum</th>
+        <th>Atanan</th>
+        <th>Çözüm SLA</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @tickets.each do |ticket| %>
+        <tr>
+          <td><%= link_to ticket.reference, ticket_path(ticket), class: "ref" %></td>
+          <td><%= link_to ticket.subject, ticket_path(ticket), class: "ref", style: "color: var(--text);" %></td>
+          <td class="subtle"><%= ticket.requester_label %></td>
+          <td><%= priority_tag(ticket.priority) %></td>
+          <td><%= status_pill(ticket.status) %></td>
+          <td class="subtle"><%= ticket.assignee&.display_name || "—" %></td>
+          <td><%= sla_badge(ticket, :resolution) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="card center subtle">Bu filtrede talep yok.</div>
+<% end %>

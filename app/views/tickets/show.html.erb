@@ -1,0 +1,115 @@
+<% content_for :title, "#{@ticket.reference} · #{@ticket.subject}" %>
+
+<div class="page-head">
+  <div>
+    <h1><%= @ticket.subject %></h1>
+    <p class="subtle"><%= @ticket.reference %> · <%= status_pill(@ticket.status) %> · <%= priority_tag(@ticket.priority) %></p>
+  </div>
+  <%= link_to "← Kuyruğa dön", tickets_path, class: "subtle" %>
+</div>
+
+<div class="layout-2col">
+  <%# ---- Left: description + conversation + reply ---- %>
+  <div>
+    <div class="card">
+      <h3 style="margin-top:0;">Açıklama</h3>
+      <div class="msg__body"><%= @ticket.description.presence || "(açıklama yok)" %></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">Yazışma</h3>
+      <% if @comments.any? %>
+        <ul class="thread">
+          <% @comments.each do |comment| %>
+            <li class="msg <%= comment.internal? ? "msg--internal" : (comment.via == "requester" ? "msg--requester" : "") %>">
+              <div class="msg__head">
+                <span class="msg__author">
+                  <%= comment.author&.display_name || @ticket.requester_label %>
+                  <% if comment.internal? %><span class="tag-internal">iç not</span><% end %>
+                </span>
+                <span><%= fmt_time(comment.created_at) %></span>
+              </div>
+              <div class="msg__body"><%= comment.body %></div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="subtle">Henüz yazışma yok.</p>
+      <% end %>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+      <%= form_with model: [@ticket, @comment], url: ticket_comments_path(@ticket), method: :post do |f| %>
+        <div class="field">
+          <%= f.label :body, "Yanıt / not" %>
+          <%= f.text_area :body, placeholder: "Yanıtınızı yazın…" %>
+        </div>
+        <label class="checkbox-row">
+          <%= f.check_box :internal %>
+          İç not (müşteriye gösterilmez)
+        </label>
+        <div class="form-actions">
+          <%= f.submit "Gönder", class: "btn" %>
+          <span class="subtle">Herkese açık bir ajan yanıtı ilk-yanıt SLA sayacını durdurur.</span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ---- Right: meta + SLA + actions ---- %>
+  <aside>
+    <div class="card">
+      <h3 style="margin-top:0;">Durum</h3>
+      <div class="transitions">
+        <% if @ticket.available_transitions.any? %>
+          <% @ticket.available_transitions.each do |to| %>
+            <%= button_to transition_label(@ticket.status, to),
+                  status_ticket_path(@ticket, status: to),
+                  method: :patch,
+                  class: "btn btn--sm #{"btn--secondary" if to == "closed"}" %>
+          <% end %>
+        <% else %>
+          <span class="subtle">Son durum — başka geçiş yok.</span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">SLA</h3>
+      <ul class="meta-list">
+        <li><span class="k">İlk yanıt</span><span><%= sla_badge(@ticket, :first_response) %></span></li>
+        <li><span class="k">İlk yanıt hedefi</span><span><%= fmt_time(@ticket.first_response_due_at) %></span></li>
+        <li><span class="k">Çözüm</span><span><%= sla_badge(@ticket, :resolution) %></span></li>
+        <li><span class="k">Çözüm hedefi</span><span><%= fmt_time(@ticket.resolution_due_at) %></span></li>
+      </ul>
+      <p class="hint" style="margin-top:10px;">SLA sayacı yalnızca çalışma saatlerinde (Pzt–Cum 09:00–17:00) ilerler; hafta sonu ve mesai dışı sayılmaz. Talep "beklemede" iken çözüm sayacı duraklar.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">Atama</h3>
+      <p class="subtle" style="margin-top:0;">Şu an: <strong><%= @ticket.assignee&.display_name || "atanmamış" %></strong></p>
+      <% unless @ticket.assignee == current_user %>
+        <%= button_to "Bana ata", assign_ticket_path(@ticket, assignee_id: current_user.id), method: :patch, class: "btn btn--sm" %>
+      <% end %>
+      <%= form_with url: assign_ticket_path(@ticket), method: :patch, class: "stack", style: "margin-top:10px;" do %>
+        <%= select_tag :assignee_id,
+              options_from_collection_for_select(@agents, :id, :display_name, @ticket.assignee_id),
+              include_blank: "— atanmamış —" %>
+        <%= submit_tag "Ata", class: "btn btn--ghost btn--sm" %>
+      <% end %>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">Bilgi</h3>
+      <ul class="meta-list">
+        <li><span class="k">Talep eden</span><span><%= @ticket.requester_label %></span></li>
+        <li><span class="k">E-posta</span><span><%= @ticket.requester_email %></span></li>
+        <li><span class="k">Öncelik</span><span><%= priority_tag(@ticket.priority) %></span></li>
+        <li><span class="k">Oluşturma</span><span><%= fmt_time(@ticket.created_at) %></span></li>
+        <% if @ticket.solved_at %>
+          <li><span class="k">Çözüldü</span><span><%= fmt_time(@ticket.solved_at) %></span></li>
+        <% end %>
+      </ul>
+    </div>
+  </aside>
+</div>

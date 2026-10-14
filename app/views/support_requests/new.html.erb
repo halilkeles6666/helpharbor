@@ -1,0 +1,55 @@
+<% content_for :title, "Yeni destek talebi" %>
+
+<div class="page-head">
+  <div>
+    <h1>Yeni destek talebi</h1>
+    <p class="subtle">Sorununuzu iletin, ekibimiz SLA süresi içinde dönüş yapsın.</p>
+  </div>
+</div>
+
+<div class="card" style="max-width: 640px;">
+  <% if @ticket.errors.any? %>
+    <div class="errors">
+      <strong><%= @ticket.errors.count %> alan düzeltilmeli:</strong>
+      <ul>
+        <% @ticket.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @ticket, url: support_requests_path, method: :post do |f| %>
+    <div class="form-row">
+      <div class="field">
+        <%= f.label :requester_name, "Adınız" %>
+        <%= f.text_field :requester_name, placeholder: "Ad Soyad" %>
+      </div>
+      <div class="field">
+        <%= f.label :requester_email, "E-posta *" %>
+        <%= f.email_field :requester_email, placeholder: "siz@ornek.com" %>
+      </div>
+    </div>
+
+    <div class="field">
+      <%= f.label :subject, "Konu *" %>
+      <%= f.text_field :subject, placeholder: "Kısa bir başlık" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :priority, "Öncelik" %>
+      <%= f.select :priority, Ticket::PRIORITIES.map { |p| [priority_label(p), p] }, {}, {} %>
+      <div class="hint">Öncelik, uygulanacak SLA süresini belirler.</div>
+    </div>
+
+    <div class="field">
+      <%= f.label :description, "Açıklama" %>
+      <%= f.text_area :description, placeholder: "Ne oldu? Mümkünse adımları yazın." %>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit "Talep oluştur", class: "btn" %>
+      <%= link_to "Ajan girişi", new_session_path, class: "subtle" %>
+    </div>
+  <% end %>
+</div>

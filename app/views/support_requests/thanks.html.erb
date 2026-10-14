@@ -1,0 +1,16 @@
+<% content_for :title, "Talebiniz alındı" %>
+
+<div class="card center" style="max-width: 520px; margin: 40px auto;">
+  <%= render "shared/logo" %>
+  <h1 style="margin: 14px 0 6px;">Talebiniz alındı 🎉</h1>
+  <p class="subtle">Referans numaranız:</p>
+  <p class="big-ref"><%= @ticket.reference %></p>
+  <p class="subtle">
+    Konu: <strong><%= @ticket.subject %></strong><br>
+    Öncelik: <%= priority_label(@ticket.priority) %> ·
+    İlk yanıt hedefi: <%= fmt_time(@ticket.first_response_due_at) %>
+  </p>
+  <p style="margin-top: 20px;">
+    <%= link_to "Yeni bir talep daha oluştur", new_support_request_path, class: "btn btn--ghost btn--sm" %>
+  </p>
+</div>

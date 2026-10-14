@@ -1,0 +1,31 @@
+# Render Blueprint for HelpHarbor.
+# Create the services from this file via Render > "New +" > "Blueprint", or
+# follow the manual steps in DEPLOY.md. RAILS_MASTER_KEY must be set by hand
+# (sync: false) — see DEPLOY.md.
+databases:
+  - name: helpharbor-db
+    plan: free
+    databaseName: helpharbor
+    user: helpharbor
+
+services:
+  - type: web
+    name: helpharbor
+    runtime: ruby
+    plan: free
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    healthCheckPath: /up
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: helpharbor-db
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: WEB_CONCURRENCY
+        value: "2"
