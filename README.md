@@ -3,8 +3,8 @@
 > Bir destek talebi (ticket) yaşam döngüsünün **aort dilimi**: talep gelir → atanır → yanıtlanır → iş-günü/mesai farkındalıklı bir **SLA** altında çözülür.
 > İlham kaynağı: **Zendesk** (markanın adı/logosu bu uygulamada kullanılmaz; yalnızca burada, README'de referans olarak geçer).
 
-<!-- CI rozeti: <KULLANICI_ADI>/<REPO_ADI> kısmını kendi GitHub repo yolunuzla değiştirin -->
-![CI](https://github.com/KULLANICI_ADI/helpharbor/actions/workflows/ci.yml/badge.svg)
+<!-- CI rozeti: repo adını 'helpharbor'dan farklı yaparsan aşağıdaki yolu güncelle -->
+![CI](https://github.com/halilkeles6666/helpharbor/actions/workflows/ci.yml/badge.svg)
 
 - **Canlı uygulama:** _(deploy sonrası Render URL'si buraya — bkz. [DEPLOY.md](DEPLOY.md))_
 - **Demo giriş:** `agent@helpharbor.test` / `password`
