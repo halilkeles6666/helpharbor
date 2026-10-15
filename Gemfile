@@ -12,7 +12,7 @@ gem "puma", ">= 5.0"
 
 # Pin json to 2.x: json 3.x removed the `quirks_mode` option that Rails 8.0.4's
 # ActiveSupport JSON encoder still passes (breaks signed cookies on Ruby 3.4).
-gem "json", "~> 2.15"
+gem "json", "~> 3.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
